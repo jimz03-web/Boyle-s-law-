@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boyle's Law Fun Learning</title>
+  <style>
+    body {
+      background-color: #b3e5fc;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px gray;
+    }
+    h1 {
+      color: #ff9800;
+    }
+    .mascot {
+      width: 100px;
+    }
+    .chat-box {
+      border: 2px solid #ff9800;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 20px;
+      background: #fff3e0;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .input-box, .mcq-box {
+      margin-top: 10px;
+    }
+    .mcq-option {
+      margin: 5px 0;
+    }
+    .question-area {
+      flex: 1 1 60%;
+      text-align: left;
+    }
+    .results {
+      flex: 1 1 35%;
+      margin-left: 10px;
+      background-color: #e1f5fe;
+      padding: 10px;
+      border-radius: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    #responseList {
+      text-align: left;
+      padding-left: 15px;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .new-question {
+      margin-top: 30px;
+      text-align: left;
+    }
+    .group-info {
+      margin: 10px 0;
+      font-weight: bold;
+      color: #00796b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Boyle's Law Fun Learning! 🐱</h1>
+    <img class="mascot" src="ginger-cat.png" alt="Ginger Cat Mascot">
+    <p>Learn about Boyle's Law with our friendly ginger cat!</p>
+
+    <h2>📚 What is Boyle's Law?</h2>
+    <p>Boyle's Law states that the pressure and volume of a gas are inversely proportional, as long as the temperature remains constant.</p>
+    <p><b>Formula:</b> P₁V₁ = P₂V₂</p>
+    <p><b>Example:</b> Imagine squeezing a balloon. When you push on it, the volume decreases, and the pressure inside increases!</p>
+
+    <h2>📝 Multiple Choice Quiz</h2>
+    <div class="input-box">
+      <input type="text" id="studentName" placeholder="Enter your name...">
+      <button onclick="registerStudent()">Join</button>
+    </div>
+    <p class="group-info" id="groupInfo"></p>
+
+    <div class="chat-box" id="quizSection" style="display:none;">
+      <div class="question-area">
+        <p><b>Question (Teacher):</b> What happens to the volume of a gas if the pressure increases while temperature stays constant?</p>
+        <div class="mcq-box">
+          <label class="mcq-option"><input type="radio" name="mcq" value="A"> A. Volume increases</label><br>
+          <label class="mcq-option"><input type="radio" name="mcq" value="B"> B. Volume decreases</label><br>
+          <label class="mcq-option"><input type="radio" name="mcq" value="C"> C. Volume stays the same</label><br>
+          <label class="mcq-option"><input type="radio" name="mcq" value="D"> D. Pressure also decreases</label><br><br>
+          <button onclick="submitAnswer()">Submit Answer</button>
+          <p id="feedback"></p>
+        </div>
+      </div>
+      <div class="results" id="resultsBox">
+        <h3>Responses:</h3>
+        <ul id="responseList"></ul>
+      </div>
+    </div>
+
+    <div class="new-question" id="addQSection" style="display:none;">
+      <h3>Add a Question (Group Only):</h3>
+      <textarea id="newQuestion" placeholder="Enter your group question..." rows="2" cols="50"></textarea><br>
+      <button onclick="addQuestion()">Add Question</button>
+      <ul id="additionalQuestions"></ul>
+    </div>
+  </div>
+
+  <script>
+    let groupNumber = null;
+    const responses = { A: [], B: [], C: [], D: [] };
+    const correctAnswer = "B";
+
+    function registerStudent() {
+      const name = document.getElementById("studentName").value.trim();
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+      groupNumber = Math.floor(Math.random() * 3) + 1;
+      document.getElementById("groupInfo").textContent = `Hello ${name}! You are in Group ${groupNumber}.`;
+      document.getElementById("quizSection").style.display = 'flex';
+      document.getElementById("addQSection").style.display = 'block';
+    }
+
+    function submitAnswer() {
+      const name = document.getElementById("studentName").value.trim();
+      const options = document.getElementsByName("mcq");
+      let selected = null;
+
+      for (const option of options) {
+        if (option.checked) {
+          selected = option.value;
+          break;
+        }
+      }
+
+      if (!name || !selected) {
+        alert("Please enter your name and select an answer.");
+        return;
+      }
+
+      for (let key in responses) {
+        responses[key] = responses[key].filter(student => student !== name);
+      }
+
+      responses[selected].push(name);
+
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = (selected === correctAnswer)
+        ? "Correct! Great job! ✅"
+        : "Oops! That's not correct. ❌";
+      feedback.style.color = (selected === correctAnswer) ? "green" : "red";
+
+      updateResponses();
+    }
+
+    function updateResponses() {
+      const responseList = document.getElementById("responseList");
+      responseList.innerHTML = "";
+      for (let key in responses) {
+        const names = responses[key];
+        const count = names.length;
+        if (count > 0) {
+          responseList.innerHTML += `<li><b>${key}:</b> ${count} vote(s) – ${names.join(", ")}</li>`;
+        }
+      }
+    }
+
+    function addQuestion() {
+      const newQ = document.getElementById("newQuestion").value.trim();
+      const list = document.getElementById("additionalQuestions");
+      if (newQ) {
+        const li = document.createElement("li");
+        li.innerHTML = `<b>Group ${groupNumber}:</b> ${newQ}`;
+        list.appendChild(li);
+        document.getElementById("newQuestion").value = "";
+      }
+    }
+  </script>
+</body>
+</html>
